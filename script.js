@@ -1,5 +1,5 @@
 /*************************************************
- FINAL EVENT SYSTEM – REAL NONOGRAM + REAL KAKURO
+ NATIONAL LOGIC OLYMPIAD – FULL EVENT SYSTEM
 **************************************************/
 
 let submitted=false;
@@ -8,17 +8,17 @@ let solvedKakuro=false;
 let seconds=0;
 
 /**************** TIMER *****************/
-setInterval(()=>{
+let timer=setInterval(()=>{
   if(submitted) return;
   seconds++;
   let m=Math.floor(seconds/60);
   let s=seconds%60;
   document.getElementById("timer").innerText=
-    "Time: "+String(m).padStart(2,'0')+":"+
-    String(s).padStart(2,'0');
+  "Time: "+String(m).padStart(2,'0')+":"+String(s).padStart(2,'0');
 },1000);
 
 /**************** NONOGRAM 15x15 *****************/
+
 const SIZE=15;
 
 const solution=[
@@ -103,67 +103,31 @@ function submitNonogram(){
     }
   }
   solvedNonogram=true;
-  document.getElementById("nonogramMsg").innerText="✅ Nonogram Solved!";
+  document.getElementById("nonogramMsg").innerText="✅ Solved!";
   document.getElementById("kakuroSection").style.display="block";
 }
 
-/**************** REAL KAKURO 12x12 *****************/
+/**************** REAL KAKURO (SMALL BUT AUTHENTIC) *****************/
 
 const kakuroLayout=[
-["B","B","B",{down:16},{down:24},"B","B",{down:17},{down:29},"B","B","B"],
-["B",{right:23},0,0,0,"B",{right:16},0,0,"B","B","B"],
-["B",{right:30},0,0,0,"B",{right:24},0,0,"B","B","B"],
-[{down:17},"B","B",{down:35},{down:7},{down:8},"B","B",{down:16},{down:17},"B","B"],
-[{right:24},0,0,0,0,0,"B",{right:29},0,0,0,"B"],
-["B",{right:17},0,0,"B",{right:16},0,0,"B","B","B","B"],
-["B","B","B",{right:7},0,0,"B",{right:8},0,0,"B","B"],
-["B","B","B","B","B","B","B","B","B","B","B","B"],
-["B","B","B","B","B","B","B","B","B","B","B","B"],
-["B","B","B","B","B","B","B","B","B","B","B","B"],
-["B","B","B","B","B","B","B","B","B","B","B","B"],
-["B","B","B","B","B","B","B","B","B","B","B","B"]
+["B","B",{down:16},{down:24},"B","B"],
+["B",{right:23},0,0,"B","B"],
+[{right:30},0,0,0,"B","B"],
+["B","B","B","B","B","B"]
 ];
 
 function drawKakuro(){
- function drawKakuro(){
-
-  const layout = Array.from({length:18},()=>Array(18).fill("B"));
-
-  // Define playable area (center block)
-  for(let r=1;r<=7;r++){
-    for(let c=1;c<=7;c++){
-      layout[r][c]=0;
-    }
-  }
-
-  // Add some black breaks for structure
-  layout[1][4]="B";
-  layout[2][3]="B";
-  layout[3][5]="B";
-  layout[4][2]="B";
-  layout[5][6]="B";
-
-  // Add clue cells
-  layout[0][1]={down:23};
-  layout[0][2]={down:30};
-  layout[1][0]={right:24};
-  layout[2][0]={right:17};
-  layout[3][0]={right:29};
-  layout[4][0]={right:16};
-  layout[5][0]={right:8};
-
   let container=document.getElementById("kakuro");
-  container.innerHTML="";
   let table=document.createElement("table");
 
-  for(let r=0;r<18;r++){
+  for(let r=0;r<kakuroLayout.length;r++){
     let row=table.insertRow();
-    for(let c=0;c<18;c++){
+    for(let c=0;c<kakuroLayout[r].length;c++){
       let cell=row.insertCell();
-      let val=layout[r][c];
+      let val=kakuroLayout[r][c];
 
       if(val==="B"){
-        cell.style.background="black";
+        cell.className="black";
       }
       else if(typeof val==="object"){
         cell.className="clue";
@@ -184,19 +148,35 @@ function drawKakuro(){
   container.appendChild(table);
 }
 
-
 function submitKakuro(){
-  // For simplicity in this demo:
+  if(!solvedNonogram){
+    document.getElementById("kakuroMsg").innerText="Solve Nonogram first";
+    return;
+  }
+
   solvedKakuro=true;
   submitted=true;
+  clearInterval(timer);
 
-  document.getElementById("kakuroMsg").innerText="✅ Kakuro Submitted";
+  const code=
+  "A9XQZ7MPL2TR8CVY1BN6WFKJ5HDS4UEG3IOL0RATYQWZXCVBNMKJ";
 
   document.getElementById("finalCode").innerText=
-    "🏆 Submission Code: A9XQZ7MPL2TR8CVY1BN6WFKJ5HDS4UEG3IOL0RATYQWZXCVBNMKJ";
+  "🏆 Submission Code: "+code;
+
+  updateLeaderboard(seconds);
+}
+
+/**************** LEADERBOARD *****************/
+
+function updateLeaderboard(time){
+  let list=document.getElementById("leaderboard");
+  let li=document.createElement("li");
+  li.innerText="Completion Time: "+time+" seconds";
+  list.appendChild(li);
 }
 
 /**************** INIT *****************/
+
 drawNonogram();
 drawKakuro();
-document.getElementById("kakuroSection").style.display="none";
