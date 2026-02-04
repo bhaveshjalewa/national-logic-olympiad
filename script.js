@@ -1,4 +1,7 @@
-// TIMER
+// =======================
+// TIMER (NO LIMIT)
+// =======================
+
 let seconds = 0;
 setInterval(() => {
   seconds++;
@@ -11,39 +14,82 @@ setInterval(() => {
 }, 1000);
 
 
-// =====================
-// 25x25 NONOGRAM ENGINE
-// =====================
+// =======================
+// 15x15 NONOGRAM (WITH CLUES)
+// =======================
 
-const size = 25;
+const nonogramSize = 15;
 const nonogramContainer = document.getElementById("nonogram-container");
-let nonogramSolution = [];
+
+// Fixed competition pattern (symmetrical style)
+const nonogramSolution = [
+[0,0,0,1,1,1,0,0,0,1,1,1,0,0,0],
+[0,0,1,0,0,0,1,0,1,0,0,0,1,0,0],
+[0,1,0,0,0,0,0,1,0,0,0,0,0,1,0],
+[1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+[1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+[0,1,0,0,0,0,0,1,0,0,0,0,0,1,0],
+[0,0,1,0,0,0,1,0,1,0,0,0,1,0,0],
+[0,0,0,1,1,1,0,0,0,1,1,1,0,0,0],
+[0,0,1,0,0,0,1,0,1,0,0,0,1,0,0],
+[0,1,0,0,0,0,0,1,0,0,0,0,0,1,0],
+[1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+[1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+[0,1,0,0,0,0,0,1,0,0,0,0,0,1,0],
+[0,0,1,0,0,0,1,0,1,0,0,0,1,0,0],
+[0,0,0,1,1,1,0,0,0,1,1,1,0,0,0]
+];
+
 let nonogramGrid = [];
+
+function calculateClues(line) {
+  let clues = [];
+  let count = 0;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === 1) {
+      count++;
+    } else if (count > 0) {
+      clues.push(count);
+      count = 0;
+    }
+  }
+  if (count > 0) clues.push(count);
+  return clues.length ? clues : [0];
+}
 
 function generateNonogram() {
   let table = document.createElement("table");
 
-  for (let i = 0; i < size; i++) {
+  // Column clues row
+  let clueRow = document.createElement("tr");
+  clueRow.appendChild(document.createElement("td"));
+
+  for (let col = 0; col < nonogramSize; col++) {
+    let column = nonogramSolution.map(row => row[col]);
+    let clues = calculateClues(column);
+    let cell = document.createElement("td");
+    cell.innerHTML = clues.join("<br>");
+    clueRow.appendChild(cell);
+  }
+
+  table.appendChild(clueRow);
+
+  for (let i = 0; i < nonogramSize; i++) {
     let row = document.createElement("tr");
-    nonogramSolution[i] = [];
+
+    let clueCell = document.createElement("td");
+    clueCell.innerText = calculateClues(nonogramSolution[i]).join(" ");
+    row.appendChild(clueCell);
+
     nonogramGrid[i] = [];
 
-    for (let j = 0; j < size; j++) {
+    for (let j = 0; j < nonogramSize; j++) {
       let cell = document.createElement("td");
-
-      // Random competition pattern (structured density)
-      let value = Math.random() > 0.6 ? 1 : 0;
-      nonogramSolution[i][j] = value;
       nonogramGrid[i][j] = 0;
 
       cell.onclick = function () {
-        if (cell.classList.contains("black-cell")) {
-          cell.classList.remove("black-cell");
-          nonogramGrid[i][j] = 0;
-        } else {
-          cell.classList.add("black-cell");
-          nonogramGrid[i][j] = 1;
-        }
+        cell.classList.toggle("black-cell");
+        nonogramGrid[i][j] = nonogramGrid[i][j] === 0 ? 1 : 0;
       };
 
       row.appendChild(cell);
@@ -52,30 +98,28 @@ function generateNonogram() {
     table.appendChild(row);
   }
 
+  nonogramContainer.innerHTML = "";
   nonogramContainer.appendChild(table);
 }
 
 function checkNonogram() {
-  for (let i = 0; i < size; i++) {
-    for (let j = 0; j < size; j++) {
+  for (let i = 0; i < nonogramSize; i++) {
+    for (let j = 0; j < nonogramSize; j++) {
       if (nonogramGrid[i][j] !== nonogramSolution[i][j]) {
-        document.getElementById("nonogram-result").innerText =
-          "Incorrect Nonogram.";
+        document.getElementById("nonogram-result").innerText = "Incorrect.";
         return;
       }
     }
   }
-  document.getElementById("nonogram-result").innerText =
-    "Nonogram Correct!";
+  document.getElementById("nonogram-result").innerText = "Correct!";
 }
 
 
+// =======================
+// 18x18 KAKURO (STRUCTURE)
+// =======================
 
-// =====================
-// 20x20 KAKURO ENGINE
-// =====================
-
-const kakuroSize = 20;
+const kakuroSize = 18;
 const kakuroContainer = document.getElementById("kakuro-container");
 
 function generateKakuro() {
@@ -87,7 +131,7 @@ function generateKakuro() {
     for (let j = 0; j < kakuroSize; j++) {
       let cell = document.createElement("td");
 
-      if ((i + j) % 5 === 0) {
+      if ((i + j) % 4 === 0) {
         cell.classList.add("kakuro-black");
       } else {
         let input = document.createElement("input");
@@ -103,12 +147,8 @@ function generateKakuro() {
     table.appendChild(row);
   }
 
+  kakuroContainer.innerHTML = "";
   kakuroContainer.appendChild(table);
-}
-
-function checkKakuro() {
-  document.getElementById("kakuro-result").innerText =
-    "Manual evaluation required (competition mode).";
 }
 
 generateNonogram();
