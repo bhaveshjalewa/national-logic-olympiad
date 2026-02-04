@@ -5,6 +5,7 @@
 <title>National Logic Olympiad</title>
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <h1>National Logic Olympiad</h1>
@@ -12,22 +13,32 @@
 
 <hr>
 
+<div class="section">
 <h2>Round 1 – Nonogram (15×15)</h2>
 <div id="nonogram"></div>
 <button onclick="submitNonogram()">Submit Nonogram</button>
 <p id="nonogramMsg"></p>
+</div>
 
 <hr>
 
-<h2>Round 2 – Kakuro (18×18)</h2>
+<div class="section" id="kakuroSection" style="display:none;">
+<h2>Round 2 – Kakuro</h2>
 <div id="kakuro"></div>
-<button onclick="submitFinal()">Submit Final</button>
+<button onclick="submitKakuro()">Submit Final</button>
 <p id="kakuroMsg"></p>
+</div>
 
 <hr>
 
-<h2 id="finalCode"></h2>
+<div class="section">
+<h2>Leaderboard</h2>
+<ul id="leaderboard"></ul>
+</div>
+
+<p id="finalCode"></p>
 
 <script src="script.js"></script>
+
 </body>
 </html>
