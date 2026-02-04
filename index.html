@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>National Logic Olympiad 2026</title>
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+  background: #f4f6f9;
+}
+
+h1 { margin-top: 20px; }
+
+.section { display: none; }
+
+table { margin: auto; border-collapse: collapse; }
+
+td {
+  width: 35px;
+  height: 35px;
+  border: 1px solid #444;
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  border: none;
+  font-size: 16px;
+}
+
+.black { background: black; }
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
+#timer {
+  font-size: 20px;
+  color: red;
+  margin: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>National Logic Olympiad 2026</h1>
+<div id="timer">Time Left: 60:00</div>
+
+<!-- ROUND 1 NONOGRAM -->
+<div id="round1" class="section">
+<h2>Round 1: Nonogram (5×5)</h2>
+<p>Clues:<br>
+Rows → 1 1 | 3 | 1 1 | 3 | 1<br>
+Cols → 1 | 3 | 1 1 | 3 | 1</p>
+
+<table id="nonogram"></table>
+
+<button onclick="submitRound1()">Submit Round 1</button>
+<p id="r1result"></p>
+</div>
+
+<!-- ROUND 2 KAKURO -->
+<div id="round2" class="section">
+<h2>Round 2: Kakuro</h2>
+<p>No repeating digits in row. Solve correctly.</p>
+
+<table>
+<tr>
+<td class="black"></td>
+<td><input id="k1"></td>
+<td><input id="k2"></td>
+</tr>
+<tr>
+<td><input id="k3"></td>
+<td><input id="k4"></td>
+<td><input id="k5"></td>
+</tr>
+</table>
+
+<button onclick="submitRound2()">Submit Final</button>
+<p id="r2result"></p>
+</div>
+
+<script>
+// TIMER (60 min)
+let totalTime = 60 * 60;
+let timer = setInterval(function(){
+  let minutes = Math.floor(totalTime / 60);
+  let seconds = totalTime % 60;
+  document.getElementById("timer").innerHTML =
+    "Time Left: " + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+  totalTime--;
+  if(totalTime < 0){
+    clearInterval(timer);
+    alert("Time Over!");
+    disableAll();
+  }
+}, 1000);
+
+// CREATE NONOGRAM GRID
+let nonogramTable = document.getElementById("nonogram");
+for(let i=0;i<5;i++){
+  let row = nonogramTable.insertRow();
+  for(let j=0;j<5;j++){
+    let cell = row.insertCell();
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    cell.appendChild(checkbox);
+  }
+}
+
+// NONOGRAM CORRECT PATTERN
+let correctPattern = [
+[1,0,1,0,0],
+[1,1,1,0,0],
+[0,1,0,1,0],
+[0,1,1,1,0],
+[0,0,0,1,0]
+];
+
+function submitRound1(){
+  let inputs = document.querySelectorAll("#nonogram input");
+  let correct = true;
+  let index = 0;
+  for(let i=0;i<5;i++){
+    for(let j=0;j<5;j++){
+      if(inputs[index].checked != (correctPattern[i][j] == 1)){
+        correct = false;
+      }
+      index++;
+    }
+  }
+
+  if(correct){
+    document.getElementById("r1result").innerHTML =
+      "✅ Round 1 Cleared! Proceed to Round 2.";
+    document.getElementById("round2").style.display = "block";
+  } else {
+    document.getElementById("r1result").innerHTML =
+      "❌ Incorrect. Try again.";
+  }
+}
+
+// KAKURO CORRECT ANSWER
+function submitRound2(){
+  let correct =
+    document.getElementById("k1").value == "3" &&
+    document.getElementById("k2").value == "1" &&
+    document.getElementById("k3").value == "2" &&
+    document.getElementById("k4").value == "4" &&
+    document.getElementById("k5").value == "5";
+
+  if(correct){
+    document.getElementById("r2result").innerHTML =
+      "🏆 Congratulations! You completed the Olympiad!";
+    disableAll();
+  } else {
+    document.getElementById("r2result").innerHTML =
+      "❌ Incorrect Final Answer.";
+  }
+}
+
+function disableAll(){
+  let inputs = document.querySelectorAll("input");
+  inputs.forEach(i => i.disabled = true);
+}
+document.getElementById("round1").style.display = "block";
+</script>
+
+</body>
+</html>
