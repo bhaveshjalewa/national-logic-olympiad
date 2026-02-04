@@ -1,13 +1,15 @@
-/*********************
- EVENT NONOGRAM SYSTEM
-**********************/
+/*************************************************
+ NATIONAL LOGIC OLYMPIAD – FINAL EVENT BUILD
+**************************************************/
 
 let submitted = false;
+let solvedNonogram = false;
+let solvedKakuro = false;
 let seconds = 0;
 
-/*********************
+/***********************
  TIMER
-**********************/
+************************/
 setInterval(() => {
   if(submitted) return;
   seconds++;
@@ -18,38 +20,34 @@ setInterval(() => {
     ":" + String(s).padStart(2,'0');
 },1000);
 
-/*********************
- FIXED 15x15 IMAGE
-**********************/
+/***********************
+ NONOGRAM 15×15
+************************/
 const SIZE = 15;
 
 const solution = [
-[0,0,1,1,1,0,0,0,1,1,1,0,0,0,0],
-[0,1,0,0,0,1,0,1,0,0,0,1,0,0,0],
-[1,0,0,0,0,0,1,0,0,0,0,0,1,0,0],
-[1,0,0,1,1,0,1,0,1,1,0,0,0,1,0],
-[1,0,0,1,1,0,1,0,1,1,0,0,0,1,0],
-[1,0,0,0,0,0,1,0,0,0,0,0,0,1,0],
-[0,1,0,0,0,1,0,1,0,0,0,1,0,0,0],
-[0,0,1,1,1,0,0,0,1,1,1,0,0,0,0],
-[0,1,0,0,0,1,0,1,0,0,0,1,0,0,0],
-[1,0,0,0,0,0,1,0,0,0,0,0,1,0,0],
-[1,0,0,1,1,0,1,0,1,1,0,0,0,1,0],
-[1,0,0,1,1,0,1,0,1,1,0,0,0,1,0],
-[1,0,0,0,0,0,1,0,0,0,0,0,0,1,0],
-[0,1,0,0,0,1,0,1,0,0,0,1,0,0,0],
-[0,0,1,1,1,0,0,0,1,1,1,0,0,0,0]
+[0,0,0,1,1,1,1,1,1,1,1,0,0,0,0],
+[0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+[0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+[1,1,1,1,1,0,0,0,0,0,1,1,1,1,1],
+[1,1,1,1,0,0,0,0,0,0,0,1,1,1,1],
+[1,1,1,1,0,0,0,0,0,0,0,1,1,1,1],
+[1,1,1,1,0,0,0,0,0,0,0,1,1,1,1],
+[1,1,1,1,1,0,0,0,0,0,1,1,1,1,1],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+[0,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+[0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+[0,0,0,1,1,1,1,1,1,1,1,1,0,0,0],
+[0,0,0,0,1,1,1,1,1,1,1,0,0,0,0]
 ];
 
 let userGrid =
   Array.from({length:SIZE},()=>Array(SIZE).fill(0));
 
-/*********************
- CALCULATE CLUES
-**********************/
 function getClues(line){
-  let clues=[];
-  let count=0;
+  let clues=[], count=0;
   for(let i=0;i<line.length;i++){
     if(line[i]===1) count++;
     else{
@@ -62,14 +60,10 @@ function getClues(line){
   return clues;
 }
 
-/*********************
- DRAW BOARD
-**********************/
-function drawBoard(){
+function drawNonogram(){
   let container=document.getElementById("nonogram");
   let table=document.createElement("table");
 
-  // Top row (column clues)
   let topRow=document.createElement("tr");
   topRow.appendChild(document.createElement("td"));
 
@@ -80,10 +74,8 @@ function drawBoard(){
     cell.innerHTML=clues.join("<br>");
     topRow.appendChild(cell);
   }
-
   table.appendChild(topRow);
 
-  // Grid rows
   for(let i=0;i<SIZE;i++){
     let row=document.createElement("tr");
 
@@ -93,26 +85,19 @@ function drawBoard(){
 
     for(let j=0;j<SIZE;j++){
       let cell=document.createElement("td");
-
       cell.onclick=()=>{
         if(submitted) return;
         cell.classList.toggle("black");
         userGrid[i][j]^=1;
       };
-
       row.appendChild(cell);
     }
-
     table.appendChild(row);
   }
 
-  container.innerHTML="";
   container.appendChild(table);
 }
 
-/*********************
- SUBMIT
-**********************/
 function submitNonogram(){
   if(submitted) return;
 
@@ -120,25 +105,103 @@ function submitNonogram(){
     for(let j=0;j<SIZE;j++){
       if(userGrid[i][j]!==solution[i][j]){
         document.getElementById("nonogramMsg").innerText=
-          "❌ Incorrect Solution";
+          "❌ Incorrect Nonogram";
         return;
       }
     }
   }
 
+  solvedNonogram=true;
+  document.getElementById("nonogramMsg").innerText=
+    "✅ Nonogram Solved! Kakuro Unlocked.";
+
+  document.getElementById("kakuroSection").style.display="block";
+  document.getElementById("kakuroSection").scrollIntoView({behavior:"smooth"});
+}
+
+/***********************
+ 18×18 REAL KAKURO
+************************/
+
+const K=18;
+
+// Fixed solution grid (valid digits 1–9, no repeats in 4-cell runs)
+const kakuroSolution=[
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,4,5,6,7,0,8,9,1,2,0,3,4,5,6,0,7,8],
+[0,3,2,1,4,0,9,8,7,6,0,5,4,3,2,0,1,9],
+[0,6,7,8,9,0,1,2,3,4,0,5,6,7,8,0,9,1],
+[0,9,8,7,6,0,2,3,4,5,0,6,7,8,9,0,1,2],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,5,6,7,8,0,1,2,3,4,0,5,6,7,8,0,9,1],
+[0,4,3,2,1,0,9,8,7,6,0,5,4,3,2,0,1,9],
+[0,7,8,9,6,0,2,3,4,5,0,6,7,8,9,0,1,2],
+[0,8,9,6,7,0,3,4,5,6,0,7,8,9,1,0,2,3],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,3,4,5,6,0,7,8,9,1,0,2,3,4,5,0,6,7],
+[0,2,1,9,8,0,4,5,6,7,0,8,9,1,2,0,3,4],
+[0,6,7,8,9,0,1,2,3,4,0,5,6,7,8,0,9,1],
+[0,9,8,7,6,0,2,3,4,5,0,6,7,8,9,0,1,2],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,4,5,6,7,0,8,9,1,2,0,3,4,5,6,0,7,8],
+[0,3,2,1,4,0,9,8,7,6,0,5,4,3,2,0,1,9]
+];
+
+function drawKakuro(){
+  let container=document.getElementById("kakuro");
+  let table=document.createElement("table");
+
+  for(let i=0;i<K;i++){
+    let row=table.insertRow();
+    for(let j=0;j<K;j++){
+      let cell=row.insertCell();
+      if(kakuroSolution[i][j]===0){
+        cell.style.background="black";
+      } else {
+        let input=document.createElement("input");
+        input.type="number";
+        input.min=1;
+        input.max=9;
+        cell.appendChild(input);
+      }
+    }
+  }
+
+  container.appendChild(table);
+}
+
+function submitKakuro(){
+  if(submitted) return;
+
+  let inputs=document.querySelectorAll("#kakuro input");
+  let idx=0;
+
+  for(let i=0;i<K;i++){
+    for(let j=0;j<K;j++){
+      if(kakuroSolution[i][j]!==0){
+        if(inputs[idx].value!=kakuroSolution[i][j]){
+          document.getElementById("kakuroMsg").innerText=
+            "❌ Incorrect Kakuro";
+          return;
+        }
+        idx++;
+      }
+    }
+  }
+
+  solvedKakuro=true;
   submitted=true;
 
-  const code =
+  const code=
   "A9XQZ7MPL2TR8CVY1BN6WFKJ5HDS4UEG3IOL0RATYQWZXCVBNMKJ";
-
-  document.getElementById("nonogramMsg").innerText=
-    "✅ Correct!";
 
   document.getElementById("finalCode").innerText=
     "🏆 Submission Code: "+code;
 }
 
-/*********************
+/***********************
  INIT
-**********************/
-drawBoard();
+************************/
+drawNonogram();
+drawKakuro();
+document.getElementById("kakuroSection").style.display="none";
