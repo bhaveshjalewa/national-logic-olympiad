@@ -125,26 +125,51 @@ const kakuroLayout=[
 ];
 
 function drawKakuro(){
+ function drawKakuro(){
+
+  const layout = Array.from({length:18},()=>Array(18).fill("B"));
+
+  // Define playable area (center block)
+  for(let r=1;r<=7;r++){
+    for(let c=1;c<=7;c++){
+      layout[r][c]=0;
+    }
+  }
+
+  // Add some black breaks for structure
+  layout[1][4]="B";
+  layout[2][3]="B";
+  layout[3][5]="B";
+  layout[4][2]="B";
+  layout[5][6]="B";
+
+  // Add clue cells
+  layout[0][1]={down:23};
+  layout[0][2]={down:30};
+  layout[1][0]={right:24};
+  layout[2][0]={right:17};
+  layout[3][0]={right:29};
+  layout[4][0]={right:16};
+  layout[5][0]={right:8};
+
   let container=document.getElementById("kakuro");
+  container.innerHTML="";
   let table=document.createElement("table");
 
-  for(let r=0;r<12;r++){
+  for(let r=0;r<18;r++){
     let row=table.insertRow();
-    for(let c=0;c<12;c++){
+    for(let c=0;c<18;c++){
       let cell=row.insertCell();
-      let val=kakuroLayout[r][c];
+      let val=layout[r][c];
 
       if(val==="B"){
         cell.style.background="black";
       }
       else if(typeof val==="object"){
-        cell.style.background="black";
-        cell.style.color="white";
-        cell.style.fontSize="10px";
-        let txt="";
-        if(val.down) txt+="\\ "+val.down;
-        if(val.right) txt+=val.right+" \\";
-        cell.innerText=txt;
+        cell.className="clue";
+        cell.innerHTML=
+          (val.down?`<div class="bottom">${val.down}</div>`:"")+
+          (val.right?`<div class="top">${val.right}</div>`:"");
       }
       else{
         let input=document.createElement("input");
@@ -155,8 +180,10 @@ function drawKakuro(){
       }
     }
   }
+
   container.appendChild(table);
 }
+
 
 function submitKakuro(){
   // For simplicity in this demo:
