@@ -8,22 +8,26 @@
 <body>
 
 <h1>National Logic Olympiad</h1>
-<div id="timer">Time Elapsed: 00:00</div>
+<div id="timer">Time: 00:00</div>
 
-<div class="section">
-<h2>Round 1 – 15×15 Nonogram</h2>
-<div id="nonogram-container"></div>
-<button onclick="checkNonogram()">Submit Nonogram</button>
-<p id="nonogram-result"></p>
-</div>
+<hr>
 
-<div class="section">
-<h2>Round 2 – 18×18 Kakuro</h2>
-<div id="kakuro-container"></div>
-<button onclick="checkKakuro()">Submit Kakuro</button>
-<p id="kakuro-result"></p>
-</div>
+<h2>Round 1 – Nonogram (15×15)</h2>
+<div id="nonogram"></div>
+<button onclick="submitNonogram()">Submit Nonogram</button>
+<p id="nonogramMsg"></p>
+
+<hr>
+
+<h2>Round 2 – Kakuro (18×18)</h2>
+<div id="kakuro"></div>
+<button onclick="submitFinal()">Submit Final</button>
+<p id="kakuroMsg"></p>
+
+<hr>
+
+<h2 id="finalCode"></h2>
 
 <script src="script.js"></script>
 </body>
-</html> 
+</html>
