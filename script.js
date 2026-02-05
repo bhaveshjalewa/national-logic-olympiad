@@ -1,26 +1,27 @@
 /*************************************************
- NATIONAL LOGIC OLYMPIAD – FINAL EVENT SYSTEM
+ NATIONAL LOGIC OLYMPIAD – FULL SYSTEM
 **************************************************/
 
-let submitted = false;
-let solvedNonogram = false;
 let seconds = 0;
+let timerInterval;
 
 /**************** TIMER ****************/
-let timer = setInterval(() => {
-  if (submitted) return;
-  seconds++;
-  let m = Math.floor(seconds / 60);
-  let s = seconds % 60;
-  document.getElementById("timer").innerText =
-    "Time: " +
-    String(m).padStart(2, "0") +
-    ":" +
-    String(s).padStart(2, "0");
-}, 1000);
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    seconds++;
+    let m = Math.floor(seconds / 60);
+    let s = seconds % 60;
+    document.getElementById("timer").innerText =
+      "Time: " +
+      String(m).padStart(2, "0") +
+      ":" +
+      String(s).padStart(2, "0");
+  }, 1000);
+}
 
 /*************************************************
- HARD NONOGRAM 15×15
+ NONOGRAM (UNCHANGED LOGIC)
 *************************************************/
 
 const N = 15;
@@ -43,9 +44,7 @@ const nonogramSolution = [
 [1,1,1,1,1,1,1,1,1,1,1,1,1,0,1]
 ];
 
-let userGrid = Array.from({ length: N }, () =>
-  Array(N).fill(0)
-);
+let userGrid = Array.from({ length: N }, () => Array(N).fill(0));
 
 function getClues(line) {
   let clues = [];
@@ -89,7 +88,6 @@ function drawNonogram() {
     for (let j = 0; j < N; j++) {
       let cell = document.createElement("td");
       cell.onclick = () => {
-        if (submitted) return;
         cell.classList.toggle("black");
         userGrid[i][j] ^= 1;
       };
@@ -106,22 +104,20 @@ function submitNonogram() {
     for (let j = 0; j < N; j++) {
       if (userGrid[i][j] !== nonogramSolution[i][j]) {
         document.getElementById("nonogramMsg").innerText =
-          "❌ Incorrect";
+          "❌ Incorrect Nonogram";
         return;
       }
     }
   }
 
-  solvedNonogram = true;
   document.getElementById("nonogramMsg").innerText =
     "✅ Nonogram Solved!";
-
   document.getElementById("kakuroSection").style.display =
     "block";
 }
 
 /*************************************************
- DENSE 18×18 KAKURO (Balanced)
+ 18×18 REAL STRUCTURED KAKURO
 *************************************************/
 
 const SIZE = 18;
@@ -129,98 +125,117 @@ let kakuroLayout = [];
 let userInputs = [];
 let correctSolution = [];
 
-function initKakuro() {
-  kakuroLayout = Array.from({ length: SIZE }, () =>
-    Array(SIZE).fill("B")
-  );
-  userInputs = Array.from({ length: SIZE }, () =>
-    Array(SIZE).fill(null)
-  );
-  correctSolution = Array.from({ length: SIZE }, () =>
-    Array(SIZE).fill(null)
-  );
+function buildKakuro(){
 
-  // Dense interior
-  for (let r = 1; r < 17; r++) {
-    for (let c = 1; c < 17; c++) {
-      kakuroLayout[r][c] = 0;
-      correctSolution[r][c] = ((r + c) % 9) + 1;
+  kakuroLayout = Array.from({length:SIZE},()=>Array(SIZE).fill("B"));
+  userInputs = Array.from({length:SIZE},()=>Array(SIZE).fill(null));
+  correctSolution = Array.from({length:SIZE},()=>Array(SIZE).fill(null));
+
+  const structure = [
+  "BBBBBBBBBBBBBBBBBB",
+  "BB000000B000000BBB",
+  "B00000B00000B000BB",
+  "B000B000000B00000B",
+  "BB000000B00000000B",
+  "B0000B00000B00000B",
+  "B000000B000000B00B",
+  "BB000B000000B0000B",
+  "B000000000B000000B",
+  "B000B00000B0000B0B",
+  "B000000B00000000BB",
+  "BB000000B00000000B",
+  "B00000B00000B0000B",
+  "B000000000B000000B",
+  "B000B00000B0000B0B",
+  "BB000000B00000000B",
+  "BBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBB"
+  ];
+
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      if(structure[r][c]==="0"){
+        kakuroLayout[r][c]=0;
+      }
     }
   }
 
-  // Structured black breaks
-  for (let r = 2; r < 17; r += 4) {
-    for (let c = 2; c < 17; c += 5) {
-      kakuroLayout[r][c] = "B";
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      if(kakuroLayout[r][c]===0){
+        correctSolution[r][c]=((r*5+c*7)%9)+1;
+      }
     }
   }
 
   generateClues();
+  drawKakuro();
 }
 
-function generateClues() {
-  for (let r = 1; r < 17; r++) {
-    for (let c = 1; c < 17; c++) {
-      if (kakuroLayout[r][c] === 0) {
+function generateClues(){
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
 
-        if (kakuroLayout[r][c - 1] === "B") {
-          let sum = 0, col = c;
-          while (col < SIZE && kakuroLayout[r][col] === 0) {
-            sum += correctSolution[r][col];
+      if(kakuroLayout[r][c]===0){
+
+        if(c===0 || kakuroLayout[r][c-1]==="B"){
+          let sum=0,col=c;
+          while(col<SIZE && kakuroLayout[r][col]===0){
+            sum+=correctSolution[r][col];
             col++;
           }
-          kakuroLayout[r][c - 1] =
-            { right: sum };
+          kakuroLayout[r][c-1] =
+            kakuroLayout[r][c-1]==="B"
+            ? {right:sum}
+            : {...kakuroLayout[r][c-1], right:sum};
         }
 
-        if (kakuroLayout[r - 1][c] === "B") {
-          let sum = 0, row = r;
-          while (row < SIZE && kakuroLayout[row][c] === 0) {
-            sum += correctSolution[row][c];
+        if(r===0 || kakuroLayout[r-1][c]==="B"){
+          let sum=0,row=r;
+          while(row<SIZE && kakuroLayout[row][c]===0){
+            sum+=correctSolution[row][c];
             row++;
           }
-          kakuroLayout[r - 1][c] =
-            kakuroLayout[r - 1][c] === "B"
-              ? { down: sum }
-              : { ...kakuroLayout[r - 1][c], down: sum };
+          kakuroLayout[r-1][c] =
+            kakuroLayout[r-1][c]==="B"
+            ? {down:sum}
+            : {...kakuroLayout[r-1][c], down:sum};
         }
       }
     }
   }
 }
 
-function drawKakuro() {
-  let container = document.getElementById("kakuro");
-  container.innerHTML = "";
-  let table = document.createElement("table");
+function drawKakuro(){
 
-  for (let r = 0; r < SIZE; r++) {
-    let row = table.insertRow();
-    for (let c = 0; c < SIZE; c++) {
-      let cell = row.insertCell();
-      let val = kakuroLayout[r][c];
+  const container=document.getElementById("kakuro");
+  container.innerHTML="";
+  const table=document.createElement("table");
 
-      if (val === "B") {
-        cell.className = "black";
+  for(let r=0;r<SIZE;r++){
+    let row=table.insertRow();
+
+    for(let c=0;c<SIZE;c++){
+      let cell=row.insertCell();
+      let val=kakuroLayout[r][c];
+
+      if(val==="B"){
+        cell.className="k-black";
       }
-      else if (typeof val === "object") {
-        cell.className = "clue";
-        cell.innerHTML =
-          (val.down ? `<div class="bottom">${val.down}</div>` : "") +
-          (val.right ? `<div class="top">${val.right}</div>` : "");
+      else if(typeof val==="object"){
+        cell.className="k-clue";
+        cell.innerHTML=
+        `<div class="clue-box">
+          <span class="clue-down">${val.down||""}</span>
+          <span class="clue-right">${val.right||""}</span>
+        </div>`;
       }
-      else {
-        let input = document.createElement("input");
-        input.type = "number";
-        input.min = 1;
-        input.max = 9;
-
-        input.oninput = () => {
-          userInputs[r][c] = input.value
-            ? parseInt(input.value)
-            : null;
-        };
-
+      else{
+        let input=document.createElement("input");
+        input.type="number";
+        input.min=1;
+        input.max=9;
+        input.oninput=()=>userInputs[r][c]=input.value?parseInt(input.value):null;
         cell.appendChild(input);
       }
     }
@@ -229,53 +244,20 @@ function drawKakuro() {
   container.appendChild(table);
 }
 
-function submitKakuro() {
-  if (!solvedNonogram) {
-    document.getElementById("kakuroMsg").innerText =
-      "Solve Nonogram first";
-    return;
-  }
+function submitKakuro(){
 
-  for (let r = 1; r < 17; r++) {
-    for (let c = 1; c < 17; c++) {
-      if (kakuroLayout[r][c] === 0) {
-        if (userInputs[r][c] !== correctSolution[r][c]) {
-          document.getElementById("kakuroMsg").innerText =
-            "❌ Incorrect Kakuro";
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      if(kakuroLayout[r][c]===0){
+        if(userInputs[r][c]!==correctSolution[r][c]){
+          document.getElementById("kakuroMsg").innerText="❌ Incorrect Kakuro";
           return;
         }
       }
     }
   }
 
-  submitted = true;
-  clearInterval(timer);
-
-  document.getElementById("kakuroMsg").innerText =
-    "✅ Kakuro Solved!";
-
-  showFinalCode();
-  updateLeaderboard();
-}
-
-function showFinalCode() {
-  const code =
-    "A9XQZ7MPL2TR8CVY1BN6WFKJ5HDS4UEG3IOL0RATYQWZXCVBNMKJ";
-
-  document.getElementById("finalCode").innerText =
-    "🏆 Submission Code: " + code;
-}
-
-/*************************************************
- LEADERBOARD
-*************************************************/
-
-function updateLeaderboard() {
-  let list = document.getElementById("leaderboard");
-  let li = document.createElement("li");
-  li.innerText =
-    "Completion Time: " + seconds + " seconds";
-  list.appendChild(li);
+  document.getElementById("kakuroMsg").innerText="✅ Kakuro Solved!";
 }
 
 /*************************************************
@@ -283,7 +265,5 @@ function updateLeaderboard() {
 *************************************************/
 
 drawNonogram();
-initKakuro();
-drawKakuro();
-document.getElementById("kakuroSection").style.display =
-  "none";
+buildKakuro();
+startTimer();
